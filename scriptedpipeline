@@ -1,0 +1,24 @@
+node('built-in')
+{
+        stage('continuous download')
+        {
+            git 'https://github.com/marutisureshk-glitch/mymaven.git'
+        }
+        stage('continuous build')
+        {
+            sh 'mvn package'
+        }
+        stage('continuous deploy')
+        {
+            sh 'scp /home/ubuntu/.jenkins/workspace/scriptedpipeline/webapp/target/webapp.war ubuntu@18.232.80.222:/var/lib/tomcat10/webapps/deploy1.war'
+        }
+        stage('continuous test')
+        {
+            git 'https://github.com/marutisureshk-glitch/functiontest.git'
+            sh 'java -jar /home/ubuntu/.jenkins/workspace/scriptedpipeline/testing.jar'
+        }
+        stage('continuous delivery')
+        {
+            sh 'scp /home/ubuntu/.jenkins/workspace/scriptedpipeline/webapp/target/webapp.war ubuntu@3.81.115.140:/var/lib/tomcat10/webapps/delivery1.war'
+        }
+    }

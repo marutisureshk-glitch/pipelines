@@ -1,0 +1,42 @@
+pipeline{
+    agent any
+    stages
+    {
+        stage('download')
+        {
+            steps
+            {
+                git 'https://github.com/marutisureshk-glitch/mymaven.git'
+            }
+        }
+        stage('continuous build')
+        {
+            steps
+            {
+                sh 'mvn package'
+            }
+        }
+        stage('continuous deploy')
+        {
+            steps
+            { //ec2 machine public key QA server
+                sh 'scp /home/ubuntu/.jenkins/workspace/declarativepipeline/webapp/target/webapp.war ubuntu@18.232.80.222:/var/lib/tomcat10/webapps/deploy.war'
+            }
+        }
+        stage('continuous test')
+        {
+            steps
+            {
+                git 'https://github.com/marutisureshk-glitch/functiontest.git'
+                sh 'java -jar /home/ubuntu/.jenkins/workspace/declarativepipeline/testing.jar'
+            }
+        }
+        stage('continuous delivery')
+        {
+            steps
+            { //ec2 machine public key prod server
+                sh 'scp /home/ubuntu/.jenkins/workspace/declarativepipeline/webapp/target/webapp.war ubuntu@3.81.115.140:/var/lib/tomcat10/webapps/delivery.war'
+            }
+        }
+    }
+}
